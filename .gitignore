@@ -1,6 +1,7 @@
 # Compiler files
 cache/
 out/
+bin/
 
 # Ignores development broadcast logs
 !/broadcast
@@ -15,3 +16,4 @@ docs/
 
 node_modules
 coverage
+.DS_Store

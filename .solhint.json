@@ -15,6 +15,8 @@
         "constructor-syntax": "error",
         "var-name-mixedcase": "off",
         "no-console": "warn",
+        "import-path-check": "off",
+        "use-natspec": "off",
         "gas-struct-packing": "warn",
         "gas-small-strings": "error",
         "gas-length-in-loops": "warn",
@@ -31,8 +33,6 @@
         "payable-fallback": "error",
         "reason-string": "warn",
         "gas-custom-errors": "warn",
-        "contract-name-camelcase": "warn",
-        "event-name-camelcase": "off",
         "func-name-mixedcase": "off",
         "func-visibility": [
             "warn",

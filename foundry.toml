@@ -2,8 +2,12 @@
 src = "src"
 out = "out"
 libs = ["lib"]
-solc = "0.8.25"
+solc = "0.8.30"
 evm_version = "prague"
+remappings = [
+    "@v3-periphery/contracts=lib/v3-periphery/contracts",
+    "@openzeppelin/contracts=lib/openzeppelin-contracts/contracts",
+]
 
 [fuzz]
 runs = 1000
