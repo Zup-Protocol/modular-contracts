@@ -88,7 +88,7 @@ interface IPoolModule {
     /**
      * @notice Returns the version identifier of this pool module.
      * @dev Used by off-chain tools and integrations to identify the module implementation version.
-     * @return version The version string of the module, e.g. "1.0.0".
+     * @return currentVersion The version string of the module, e.g. "1.0.0".
      */
-    function version() external pure returns (string memory version);
+    function version() external pure returns (string memory currentVersion);
 }
