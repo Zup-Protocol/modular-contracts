@@ -81,7 +81,7 @@ interface IPoolModule {
      * For better integration across Zup Protocol ecosystem, it is recommended to use the
      * same key as the indexer for the protocol hashed as bytes4, e.g. `bytes4(keccak256("uniswap-v3"))`.
      *
-     * See [Indexer Protocols](https://github.com/Zup-Protocol/pools-indexer/blob/58d58893fc1cfef2c1f8fc90f4818191f6c6973d/src/common/enums/supported-protocol.ts#L8-L30)
+     * See [Indexer Protocols](https://github.com/Zup-Protocol/pools-indexer/blob/main/src/common/enums/supported-protocol.ts#L8-L30)
      */
     function key() external pure returns (bytes4);
 
