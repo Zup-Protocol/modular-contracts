@@ -60,11 +60,12 @@ contract ModularTest is Test {
         vm.mockCall(address(newModule), abi.encodeWithSelector(IPoolModule.key.selector), abi.encode(bytes4(keccak256("uniswap-v3"))));
         vm.mockCall(address(newModule2), abi.encodeWithSelector(IPoolModule.key.selector), abi.encode(bytes4(keccak256("uniswap-v3"))));
 
+        uint256 scheduledSinceBlockTimestamp = block.timestamp;
         sut.scheduleModule(IPoolModule(newModule));
 
         vm.prank(ADMIN);
 
-        vm.expectRevert(abi.encodeWithSelector(IModular.ModuleAlreadyScheduled.selector, newModule));
+        vm.expectRevert(abi.encodeWithSelector(IModular.ModuleAlreadyScheduled.selector, newModule, scheduledSinceBlockTimestamp));
         sut.scheduleModule(IPoolModule(newModule2));
 
         vm.stopPrank();
