@@ -55,6 +55,36 @@ contract PoolModuleTest is Test {
         _poolModule.addLiquidity(actionParams, "");
     }
 
+    function testFuzz_addLiquidity_approveTokensForPositionManager(
+        LiquidityActionRequest.LiquidityActionParams memory actionParams
+    ) external {
+        ERC20Mock token0 = new ERC20Mock();
+        ERC20Mock token1 = new ERC20Mock();
+
+        assumeNotZeroAddress(actionParams.receiver);
+        assumeNotZeroAddress(actionParams.positionManager);
+
+        actionParams.token0 = address(token0);
+        actionParams.token1 = address(token1);
+
+        token0.mint(address(this), actionParams.amount0);
+        token1.mint(address(this), actionParams.amount1);
+        token0.approve(address(_poolModule), actionParams.amount0);
+        token1.approve(address(_poolModule), actionParams.amount1);
+
+        vm.expectCall(
+            actionParams.token0,
+            abi.encodeWithSelector(ERC20.approve.selector, address(actionParams.positionManager), uint256(actionParams.amount0))
+        );
+
+        vm.expectCall(
+            actionParams.token1,
+            abi.encodeWithSelector(ERC20.approve.selector, address(actionParams.positionManager), uint256(actionParams.amount1))
+        );
+
+        _poolModule.addLiquidity(actionParams, "");
+    }
+
     function testFuzz_addLiquidity_notTransferToken0FromSenderIfNative(uint128 amount0, uint128 amount1) external {
         ERC20Mock token1 = new ERC20Mock();
 
