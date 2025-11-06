@@ -1,8 +1,9 @@
 {
-  "name": "pools-periphery-contracts",
+  "name": "modular-contracts",
+  "author": "Zup Protocol",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Zup-Protocol/pools-periphery-contracts.git"
+    "url": "git+https://github.com/Zup-Protocol/modular-contracts.git"
   },
   "engines": {
     "node": ">=20"
