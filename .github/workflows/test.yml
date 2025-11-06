@@ -12,7 +12,32 @@ env:
   FOUNDRY_PROFILE: ci
 
 jobs:
-  check:
+  analyze-code:
+    name: "Analyze Code"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: "Install Node"
+        uses: actions/setup-node@v6
+
+      - name: "Install dependencies"
+        run: yarn install
+
+      - name: "Run Linter"
+        run: yarn solhint --config .solhint.json src/**/*.sol --max-warnings 0
+
+      - name: "Run Slither"
+        uses: crytic/slither-action@v0.4.1
+        with:
+          fail-on: all
+
+      - name: "Run Aderyn"
+        uses: Cyfrin/aderyn-ci@v0.0.9
+        with:
+          fail-on: any
+
+  run-tests:
     name: Foundry project
     runs-on: ubuntu-latest
     steps:
@@ -26,9 +51,6 @@ jobs:
 
       - name: Show Forge version
         run: forge --version
-
-      - name: Run Forge fmt
-        run: forge fmt --check
 
       - name: Run Forge build
         run: forge build --sizes
