@@ -5,8 +5,18 @@ permissions:
 
 on:
   push:
+    paths:
+      - "src/**"
+      - "lib/**"
+      - "test/**"
+      - "script/**"
+
   pull_request:
-  workflow_dispatch:
+    paths:
+      - "src/**"
+      - "lib/**"
+      - "test/**"
+      - "script/**"
 
 env:
   FOUNDRY_PROFILE: ci
