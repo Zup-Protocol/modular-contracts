@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GNU GPLv3
 pragma solidity 0.8.30;
 
-import {Test} from "forge-std/Test.sol";
+import {Test, console} from "forge-std/Test.sol";
 import {UniswapV3PoolModule, LiquidityActionRequest, IUniswapV3PositionManager} from "../../src/modules/UniswapV3PoolModule.sol";
 import {UniswapV3PositionManagerMock} from "../test-utils/mocks.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
@@ -13,7 +13,7 @@ contract UniswapV3PoolModuleTest is Test {
     ERC20Mock internal mockToken1;
 
     function setUp() external {
-        uniswapV3PoolModule = new UniswapV3PoolModule();
+        uniswapV3PoolModule = new UniswapV3PoolModule(address(0));
         positionManager = new UniswapV3PositionManagerMock();
         mockToken0 = new ERC20Mock();
         mockToken1 = new ERC20Mock();
@@ -104,6 +104,53 @@ contract UniswapV3PoolModuleTest is Test {
             )
         );
         uniswapV3PoolModule.addLiquidity{value: nativeAmountSent}(actionData, abi.encode(moduleData));
+    }
+
+    function test_addLiquidity_setWrappedNativeIfNativeForPositionManager(address wrappedNativeAddress) external {
+        uniswapV3PoolModule = new UniswapV3PoolModule(wrappedNativeAddress);
+        vm.deal(address(this), 1 ether);
+
+        LiquidityActionRequest.LiquidityActionParams memory actionData = LiquidityActionRequest.LiquidityActionParams({
+            token0: address(0),
+            token1: address(0),
+            positionManager: address(positionManager),
+            receiver: address(21),
+            amount0: 1000,
+            amount1: 1000
+        });
+
+        LiquidityActionRequest.UniswapV3AddLiquidityParams memory moduleData = LiquidityActionRequest.UniswapV3AddLiquidityParams({
+            fee: 0,
+            tickLower: 0,
+            tickUpper: 0,
+            amount0Min: 0,
+            amount1Min: 0,
+            deadline: 0
+        });
+
+        vm.expectCall(
+            actionData.positionManager,
+            1 ether,
+            abi.encodeWithSelector(
+                IUniswapV3PositionManager.mint.selector,
+                (
+                    IUniswapV3PositionManager.MintParams({
+                        token0: wrappedNativeAddress,
+                        token1: wrappedNativeAddress,
+                        amount0Desired: actionData.amount0,
+                        amount1Desired: actionData.amount1,
+                        fee: moduleData.fee,
+                        tickLower: moduleData.tickLower,
+                        tickUpper: moduleData.tickUpper,
+                        amount0Min: moduleData.amount0Min,
+                        amount1Min: moduleData.amount1Min,
+                        recipient: address(actionData.receiver),
+                        deadline: moduleData.deadline
+                    })
+                )
+            )
+        );
+        uniswapV3PoolModule.addLiquidity{value: 1 ether}(actionData, abi.encode(moduleData));
     }
 
     function test_addLiquidity_callsRefundETHOnPositionManagerWhenNativeAmountSent() external {

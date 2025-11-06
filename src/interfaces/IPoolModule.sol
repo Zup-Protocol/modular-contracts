@@ -48,6 +48,26 @@ interface IPoolModule {
     error UnsupportedModuleCall();
 
     /**
+     * @notice Error raised when native tokens (e.g., ETH) are sent directly to the module.
+     *
+     * @dev The module does not support arbitrary native transfers. Native value can only be
+     * received during a valid transaction to facilitate atomic refunds within the same call context.
+     */
+    error NativeTransferNotAllowed();
+
+    /**
+     * @notice Error raised when a call uses the zero address as a token address
+     * but fails to send the required native value (`msg.value`) to complete the operation.
+     *
+     * @dev This error indicates that the transaction attempted to represent a native token
+     * (e.g., ETH) using the zero address without attaching sufficient native value.
+     *
+     * @param amountNeeded The minimum amount of native value required for the operation.
+     * @param amountProvided The amount of native value actually provided by the caller.
+     */
+    error NotEnoughNativeValue(uint256 amountNeeded, uint256 amountProvided);
+
+    /**
      * @notice Adds liquidity to the controlled pool for a specific DEX.
      *
      * @param actionData Struct containing the common parameters required

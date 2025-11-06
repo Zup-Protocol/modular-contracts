@@ -22,6 +22,13 @@ import {IPoolModule} from "./interfaces/IPoolModule.sol";
 abstract contract PoolModule is IPoolModule {
     using SafeERC20 for IERC20;
 
+    //solhint-disable-next-line chainlink-solidity/prefix-storage-variables-with-s-underscore
+    bool internal transient t_canReceiveNative;
+
+    receive() external payable {
+        if (!t_canReceiveNative) revert NativeTransferNotAllowed();
+    }
+
     fallback() external {
         revert UnsupportedModuleCall();
     }
@@ -30,6 +37,9 @@ abstract contract PoolModule is IPoolModule {
     function addLiquidity(LiquidityActionRequest.LiquidityActionParams calldata actionData, bytes calldata moduleData) external payable {
         bool isNative0 = actionData.token0 == address(0);
         bool isNative1 = actionData.token1 == address(0);
+
+        if (isNative0 && msg.value < actionData.amount0) revert NotEnoughNativeValue(actionData.amount0, msg.value);
+        if (isNative1 && msg.value < actionData.amount1) revert NotEnoughNativeValue(actionData.amount1, msg.value);
 
         if (!isNative0) {
             IERC20 token0 = IERC20(actionData.token0);
@@ -43,7 +53,9 @@ abstract contract PoolModule is IPoolModule {
             token1.forceApprove(actionData.positionManager, actionData.amount1);
         }
 
+        t_canReceiveNative = true;
         _executeAddLiquidity(actionData, moduleData);
+        t_canReceiveNative = false;
 
         if (address(this).balance > 0) Address.sendValue(payable(actionData.receiver), address(this).balance);
 

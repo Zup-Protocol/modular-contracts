@@ -15,6 +15,12 @@ import {IUniswapV3PositionManager} from "../interfaces/IUniswapV3PositionManager
  *
  */
 contract UniswapV3PoolModule is PoolModule /* aderyn-fp(contract-locks-ether) */ {
+    address internal immutable i_wrappedNativeAddress;
+
+    constructor(address wrappedNativeAddress) {
+        i_wrappedNativeAddress = wrappedNativeAddress;
+    }
+
     /// @inheritdoc PoolModule
     function key() external pure override returns (bytes4) {
         return bytes4(keccak256("uniswap-v3"));
@@ -35,8 +41,9 @@ contract UniswapV3PoolModule is PoolModule /* aderyn-fp(contract-locks-ether) */
         //slither-disable-next-line unused-return
         positionManager.mint{value: msg.value}(
             IUniswapV3PositionManager.MintParams({
-                token0: actionParams.token0,
-                token1: actionParams.token1,
+                // as uniswap v3 doesn't support native, we need to use the wrapped native address.
+                token0: actionParams.token0 == address(0) ? i_wrappedNativeAddress : actionParams.token0,
+                token1: actionParams.token1 == address(0) ? i_wrappedNativeAddress : actionParams.token1,
                 amount0Desired: actionParams.amount0,
                 amount1Desired: actionParams.amount1,
                 fee: requestData.fee,

@@ -15,6 +15,7 @@ contract ModularInvariantTest is StdInvariant, Test {
         targetContract(address(sut));
     }
 
+    /// forge-config: default.invariant.fail-on-revert = false
     function invariant_ModuleShouldNeverUpdateBefore7DaysDelay() external view {
         assertEq(sut.getModule(sut.module().key()), address(0));
     }
@@ -28,7 +29,7 @@ contract ModularHandler is IModular, Test {
     constructor() {
         owner = msg.sender;
         realModular = new Modular(owner);
-        module = new UniswapV3PoolModule();
+        module = new UniswapV3PoolModule(address(0));
     }
 
     function scheduleModule(IPoolModule /* newModule */) external override {

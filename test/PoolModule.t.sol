@@ -11,6 +11,8 @@ contract PoolModuleTest is Test {
 
     function setUp() external {
         _poolModule = new PoolModuleTestImpl();
+
+        vm.deal(address(this), type(uint256).max);
     }
 
     function test_unknownFunctionSelectorCallReverts() external {
@@ -111,7 +113,7 @@ contract PoolModuleTest is Test {
             "should not be called"
         );
 
-        _poolModule.addLiquidity(actionParams, "");
+        _poolModule.addLiquidity{value: amount0}(actionParams, "");
     }
 
     function testFuzz_addLiquidity_notTransferToken1FromSenderIfNative(uint128 amount0, uint128 amount1) external {
@@ -140,7 +142,7 @@ contract PoolModuleTest is Test {
             "should not be called"
         );
 
-        _poolModule.addLiquidity(actionParams, "");
+        _poolModule.addLiquidity{value: amount1}(actionParams, "");
     }
 
     function test_addLiquidity_shouldCallExecuteLiquidityImplementationWithActionParams() external {
@@ -310,6 +312,81 @@ contract PoolModuleTest is Test {
         vm.stopPrank();
     }
 
+    function test_revertsWhenSendingNativeToContract() external {
+        vm.expectRevert(IPoolModule.NativeTransferNotAllowed.selector);
+        payable(_poolModule).transfer(1);
+    }
+
+    function testFuzz_addLiquidity_revertsSendingLessNativeThanRequiredForToken0(uint128 amount0Needed, uint128 amount0Sent) external {
+        vm.assume(amount0Needed > amount0Sent);
+
+        ERC20Mock token1Erc20 = new ERC20Mock();
+
+        token1Erc20.mint(address(this), 1);
+        token1Erc20.approve(address(_poolModule), 1);
+
+        LiquidityActionRequest.LiquidityActionParams memory actionParams = LiquidityActionRequest.LiquidityActionParams({
+            token0: address(0),
+            token1: address(token1Erc20),
+            amount0: uint128(amount0Needed),
+            amount1: 1,
+            receiver: address(this),
+            positionManager: address(_poolModule)
+        });
+
+        vm.expectRevert(abi.encodeWithSelector(IPoolModule.NotEnoughNativeValue.selector, amount0Needed, amount0Sent));
+        _poolModule.addLiquidity{value: amount0Sent}(actionParams, "");
+    }
+
+    function testFuzz_addLiquidity_revertsSendingLessNativeThanRequiredForToken1(uint128 amount1Needed, uint128 amount1Sent) external {
+        vm.assume(amount1Needed > amount1Sent);
+
+        ERC20Mock token0Erc20 = new ERC20Mock();
+
+        token0Erc20.mint(address(this), 1);
+        token0Erc20.approve(address(_poolModule), 1);
+
+        LiquidityActionRequest.LiquidityActionParams memory actionParams = LiquidityActionRequest.LiquidityActionParams({
+            token0: address(token0Erc20),
+            token1: address(0),
+            amount0: 1,
+            amount1: uint128(amount1Needed),
+            receiver: address(this),
+            positionManager: address(_poolModule)
+        });
+
+        vm.expectRevert(abi.encodeWithSelector(IPoolModule.NotEnoughNativeValue.selector, amount1Needed, amount1Sent));
+        _poolModule.addLiquidity{value: amount1Sent}(actionParams, "");
+    }
+
+    function test_addLiquidity_allowsContractReceiveNative() external {
+        ERC20Mock token0Erc20 = new ERC20Mock();
+        ERC20Mock token1Erc20 = new ERC20Mock();
+
+        LiquidityActionRequest.LiquidityActionParams memory actionParams = LiquidityActionRequest.LiquidityActionParams({
+            token0: address(token0Erc20),
+            token1: address(token1Erc20),
+            positionManager: address(21),
+            receiver: address(22),
+            amount0: 1,
+            amount1: 1
+        });
+
+        token0Erc20.mint(address(this), actionParams.amount0);
+        token1Erc20.mint(address(this), actionParams.amount1);
+
+        token0Erc20.approve(address(_poolModule), actionParams.amount0);
+        token1Erc20.approve(address(_poolModule), actionParams.amount1);
+
+        actionParams.token0 = address(token0Erc20);
+        actionParams.token1 = address(token1Erc20);
+
+        _poolModule.setShouldSendETHBack();
+        _poolModule.addLiquidity(actionParams, "");
+
+        // if it doesn't revert, the test passed
+    }
+
     function test_key_returnsImplementationContractKey() external {
         assertEq(_poolModule.key(), new PoolModuleTestImpl().key());
     }
@@ -319,13 +396,21 @@ contract PoolModuleTest is Test {
     }
 }
 
-contract PoolModuleTestImpl is PoolModule {
+contract PoolModuleTestImpl is PoolModule, Test {
+    constructor() PoolModule() {}
+
+    bool public shouldSendETHBack = false;
+
     struct ExecuteAddLiquidityParams {
         LiquidityActionRequest.LiquidityActionParams actionParams;
         bytes addLiquidityParams;
     }
 
     ExecuteAddLiquidityParams public executeAddLiquidityCallParams;
+
+    function setShouldSendETHBack() external {
+        shouldSendETHBack = true;
+    }
 
     function key() external pure override returns (bytes4) {
         return bytes4(keccak256("XabasContract"));
@@ -336,5 +421,6 @@ contract PoolModuleTestImpl is PoolModule {
         bytes calldata addLiquidityParams
     ) internal virtual override {
         executeAddLiquidityCallParams = ExecuteAddLiquidityParams({actionParams: actionParams, addLiquidityParams: addLiquidityParams});
+        if (shouldSendETHBack) payable(this).transfer(msg.value);
     }
 }
