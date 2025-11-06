@@ -31,26 +31,26 @@ contract ModularHandler is IModular, Test {
         module = new UniswapV3PoolModule();
     }
 
-    function scheduleModule(IPoolModule newModule) external override {
+    function scheduleModule(IPoolModule /* newModule */) external override {
         vm.prank(owner);
         realModular.scheduleModule(module);
     }
 
-    function updateModule(IPoolModule newModule) external override {
+    function updateModule(IPoolModule /* newModule */) external override {
         vm.prank(owner);
         realModular.updateModule(module);
     }
 
-    function cancelScheduledModule(IPoolModule moduleToCancel) external override {
+    function cancelScheduledModule(IPoolModule /* newModule */) external override {
         vm.prank(owner);
         realModular.cancelScheduledModule(module);
     }
 
-    function getModule(bytes4 moduleKey) external view override returns (address moduleContract) {
+    function getModule(bytes4 /* moduleKey */) external view override returns (address moduleContract) {
         return realModular.getModule(module.key());
     }
 
-    function getUpcomingModule(bytes4 moduleKey) external view override returns (UpcomingModule memory) {
+    function getUpcomingModule(bytes4 /* moduleKey */) external view override returns (UpcomingModule memory) {
         return realModular.getUpcomingModule(module.key());
     }
 }
