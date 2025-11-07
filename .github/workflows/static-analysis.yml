@@ -1,9 +1,9 @@
-name: Vulnerability Check
+name: Static Analysis
 
 on:
   push:
     paths:
-      - ".github/workflows/vulnerability-check.yml"
+      - ".github/workflows/static-analysis.yml"
       - "src/**"
       - "lib/**"
       - "test/**"
@@ -11,15 +11,15 @@ on:
 
   pull_request:
     paths:
-      - ".github/workflows/vulnerability-check.yml"
+      - ".github/workflows/static-analysis.yml"
       - "src/**"
       - "lib/**"
       - "test/**"
       - "script/**"
 
 jobs:
-  vulnerability-check:
-    name: "Vulnerability Check"
+  vulnerability-scan:
+    name: "Vulnerability Scan"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
