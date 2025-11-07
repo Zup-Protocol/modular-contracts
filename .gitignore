@@ -16,5 +16,7 @@ docs/
 .env
 
 node_modules
+.pnp.*
 coverage
 .DS_Store
+.yarn
