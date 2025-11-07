@@ -6,12 +6,12 @@
     "url": "git+https://github.com/Zup-Protocol/modular-contracts.git"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "yarn": ">=4"
   },
   "scripts": {
     "lint": "solhint 'src/**/*.sol' --max-warnings 0",
     "test": "forge test -vvv",
-    "analyze": "slither .",
     "prepare": "husky",
     "postinstall": "forge install",
     "deploy:Modular": "forge script script/DeployModular.s.sol --broadcast --verify --trezor -vvvv --rpc-url$1",
