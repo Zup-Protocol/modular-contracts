@@ -1,0 +1,40 @@
+name: Lint
+
+on:
+  push:
+    paths:
+      - ".github/workflows/lint.yml"
+      - "src/**"
+      - "lib/**"
+      - "test/**"
+      - "script/**"
+
+  pull_request:
+    paths:
+      - ".github/workflows/lint.yml"
+      - "src/**"
+      - "lib/**"
+      - "test/**"
+      - "script/**"
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  lint-code:
+    name: "Lint code"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: "Install Node"
+        uses: actions/setup-node@v6
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: "Install dependencies"
+        run: yarn install
+
+      - name: "Run Linter"
+        run: yarn solhint --config .solhint.json src/**/*.sol --max-warnings 0
