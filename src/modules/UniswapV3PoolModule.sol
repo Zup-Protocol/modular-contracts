@@ -15,9 +15,14 @@ import {IUniswapV3PositionManager} from "../interfaces/IUniswapV3PositionManager
  *
  */
 contract UniswapV3PoolModule is PoolModule /* aderyn-fp(contract-locks-ether) */ {
+    /// @notice The address of the wrapped native token of the network, e.g. WETH
     address public immutable i_wrappedNativeAddress;
 
+    error WrappedNativeCannotBeZeroAddress();
+
     constructor(address wrappedNativeAddress) {
+        if (wrappedNativeAddress == address(0)) revert WrappedNativeCannotBeZeroAddress();
+
         i_wrappedNativeAddress = wrappedNativeAddress;
     }
 

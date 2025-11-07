@@ -11,9 +11,11 @@ contract UniswapV3PoolModuleTest is Test {
     IUniswapV3PositionManager internal positionManager;
     ERC20Mock internal mockToken0;
     ERC20Mock internal mockToken1;
+    address internal wrappedNativeAddress;
 
     function setUp() external {
-        uniswapV3PoolModule = new UniswapV3PoolModule(address(0));
+        wrappedNativeAddress = address(36918);
+        uniswapV3PoolModule = new UniswapV3PoolModule({wrappedNativeAddress: wrappedNativeAddress});
         positionManager = new UniswapV3PositionManagerMock();
         mockToken0 = new ERC20Mock();
         mockToken1 = new ERC20Mock();
@@ -88,8 +90,8 @@ contract UniswapV3PoolModuleTest is Test {
                 IUniswapV3PositionManager.mint.selector,
                 (
                     IUniswapV3PositionManager.MintParams({
-                        token0: actionData.token0,
-                        token1: actionData.token1,
+                        token0: wrappedNativeAddress,
+                        token1: wrappedNativeAddress,
                         amount0Desired: actionData.amount0,
                         amount1Desired: actionData.amount1,
                         fee: moduleData.fee,
@@ -106,8 +108,10 @@ contract UniswapV3PoolModuleTest is Test {
         uniswapV3PoolModule.addLiquidity{value: nativeAmountSent}(actionData, abi.encode(moduleData));
     }
 
-    function test_addLiquidity_setWrappedNativeIfNativeForPositionManager(address wrappedNativeAddress) external {
-        uniswapV3PoolModule = new UniswapV3PoolModule(wrappedNativeAddress);
+    function test_addLiquidity_setWrappedNativeIfNativeForPositionManager(address customWrappedNativeAddress) external {
+        assumeNotZeroAddress(customWrappedNativeAddress);
+
+        uniswapV3PoolModule = new UniswapV3PoolModule(customWrappedNativeAddress);
         vm.deal(address(this), 1 ether);
 
         LiquidityActionRequest.LiquidityActionParams memory actionData = LiquidityActionRequest.LiquidityActionParams({
@@ -135,8 +139,8 @@ contract UniswapV3PoolModuleTest is Test {
                 IUniswapV3PositionManager.mint.selector,
                 (
                     IUniswapV3PositionManager.MintParams({
-                        token0: wrappedNativeAddress,
-                        token1: wrappedNativeAddress,
+                        token0: customWrappedNativeAddress,
+                        token1: customWrappedNativeAddress,
                         amount0Desired: actionData.amount0,
                         amount1Desired: actionData.amount1,
                         fee: moduleData.fee,
@@ -151,6 +155,11 @@ contract UniswapV3PoolModuleTest is Test {
             )
         );
         uniswapV3PoolModule.addLiquidity{value: 1 ether}(actionData, abi.encode(moduleData));
+    }
+
+    function test_deploy_revertsIfWrappedNativeIsZero() external {
+        vm.expectRevert(UniswapV3PoolModule.WrappedNativeCannotBeZeroAddress.selector);
+        new UniswapV3PoolModule(address(0));
     }
 
     function test_addLiquidity_callsRefundETHOnPositionManagerWhenNativeAmountSent() external {

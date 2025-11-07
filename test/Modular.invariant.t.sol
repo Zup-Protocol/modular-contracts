@@ -29,7 +29,7 @@ contract ModularHandler is IModular, Test {
     constructor() {
         owner = msg.sender;
         realModular = new Modular(owner);
-        module = new UniswapV3PoolModule(address(0));
+        module = new UniswapV3PoolModule(address(1));
     }
 
     function scheduleModule(IPoolModule /* newModule */) external override {
