@@ -18,7 +18,7 @@ include_push_bytes = true
 extra_output = ["storageLayout", "metadata"]
 
 [invariant]
-fail_on_revert = false
+fail_on_revert = true
 runs = 1000
 depth = 25
 
@@ -31,3 +31,11 @@ number_underscore = "thousands"
 quote_style = "double"
 tab_width = 4
 wrap_comments = true
+
+[rpc_endpoints]
+mainnet = "https://eth.llamarpc.com"
+sepolia = "https://ethereum-sepolia-rpc.publicnode.com"
+
+[etherscan]
+mainnet = { key = "ETHERSCAN_API_KEY", url = "https://etherscan.io" }
+sepolia = { key = "ETHERSCAN_API_KEY", url = "https://sepolia.etherscan.io" }

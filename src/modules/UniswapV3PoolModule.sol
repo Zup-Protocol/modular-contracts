@@ -15,7 +15,7 @@ import {IUniswapV3PositionManager} from "../interfaces/IUniswapV3PositionManager
  *
  */
 contract UniswapV3PoolModule is PoolModule /* aderyn-fp(contract-locks-ether) */ {
-    address internal immutable i_wrappedNativeAddress;
+    address public immutable i_wrappedNativeAddress;
 
     constructor(address wrappedNativeAddress) {
         i_wrappedNativeAddress = wrappedNativeAddress;
