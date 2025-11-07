@@ -1,6 +1,7 @@
 ## Modular Contracts
 > A unified, permissionless interface for seamless interaction with liquidity pools — by [Zup Protocol](https://zupprotocol.xyz)
 
+
 [![Lint](https://github.com/Zup-Protocol/modular-contracts/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/Zup-Protocol/modular-contracts/actions/workflows/lint.yml) [![Test](https://github.com/Zup-Protocol/modular-contracts/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/Zup-Protocol/modular-contracts/actions/workflows/test.yml) [![Static Analysis](https://github.com/Zup-Protocol/modular-contracts/actions/workflows/static-analysis.yml/badge.svg?branch=main)](https://github.com/Zup-Protocol/modular-contracts/actions/workflows/static-analysis.yml)
 
 Modular Contracts are a set of smart contracts developed by _[Zup Protocol](https://zupprotocol.xyz)_ that provide a unified interface for interacting with liquidity pools across multiple decentralized exchange protocols.
@@ -10,6 +11,8 @@ They enable integrators to seamlessly interact with different AMM architectures 
 Modules are **standalone**, **immutable**, and **permissionless**, they can be deployed and used in any environment by anyone. The `Modular` contract serves as the registry and manager for all module versions, ensuring consistent usage across the ecosystem.
 
 Unlike modules, only authorized users can update the module registry in the `Modular` contract and define which versions are currently used. To enhance security and transparency, any change to the officially used modules is subject to a **7-day activation** delay before being able to be activated.
+
+⚠️ **This project is under active development and has not yet been audited. Production use is strongly discouraged, as the code may contain bugs or vulnerabilities.**
 
 ## Development Setup
 
